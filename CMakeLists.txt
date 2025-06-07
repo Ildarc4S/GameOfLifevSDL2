@@ -16,12 +16,14 @@ add_executable(${PROJECT_NAME}
   main.cc
   src/gui/renderer.cc
   src/common/controller.cc
+  src/common/timer.cc
 
   include/gui/renderer.h
   include/common/controller.h
+  include/common/timer.h
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC GameLibs)
+target_link_libraries(${PROJECT_NAME} PUBLIC GameLibs ${SDL2_LIBRARIES})
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY "${CMAKE_BINARY_DIR}/bin")
 
