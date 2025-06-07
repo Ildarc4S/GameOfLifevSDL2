@@ -6,12 +6,12 @@
 
 class Controller {
   public:
-    Controller(GameOfLife& game, Render& render, int update_interval);
+    Controller(GameOfLife& game, Renderer& renderer, int update_interval);
     void run();
 
   private:
     GameOfLife& game_;
-    Render& render_;
+    Renderer& renderer_;
     int update_interval_;
     void handleEvents();
 };

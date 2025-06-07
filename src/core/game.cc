@@ -1,7 +1,7 @@
 #include "../../include/core/game.h"
 
 GameOfLife::GameOfLife(int width, int height)
-  : width_(width), height_(height) {
+  : width_(width), height_(height), state_(State::kPaused) {
   field_.resize(height, Row(width, false));
 }
 
@@ -32,7 +32,7 @@ bool GameOfLife::checkRules(int x, int y) const {
 void GameOfLife::updateField() {
   Field new_field(height_, Row(width_, false));
   for (int i = 0; i < height_; ++i) {
-    for (int j = 0; j < height_; ++j) {
+    for (int j = 0; j < width_; ++j) {
       new_field[i][j] = checkRules(j, i);
     }
   }
@@ -97,4 +97,8 @@ int GameOfLife::getWidth() const {
 
 int GameOfLife::getHeight() const {
   return height_;
+}
+
+State GameOfLife::getState() const {
+  return state_;
 }
