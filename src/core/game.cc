@@ -9,10 +9,10 @@ int GameOfLife::countNeighbors(int x, int y) const {
   int count = 0;
   for (int i = -1; i <= 1; ++i) {
     for (int j = -1; j <= 1; ++j) {
+      if (i == 0 && j == 0) continue;
       int neighbour_x = x + i;
       int neighbour_y = y + j;
-      if (i != 0 && j != 0
-          && neighbour_x >= 0 && neighbour_x < width_
+      if (neighbour_x >= 0 && neighbour_x < width_
           && neighbour_y >= 0 && neighbour_y < height_
           && field_[neighbour_x][neighbour_y]) {
         count++;
@@ -43,7 +43,7 @@ void GameOfLife::toogleCell(const Coords& coords) {
   const auto& [x, y] = coords;
   if (x >= 0 && x < width_
       && y >= 0 && y < height_) {
-    field_[y][x] != field_[y][x];
+    field_[y][x] = !field_[y][x];
   }
 }
 
@@ -87,7 +87,9 @@ void GameOfLife::clear() {
 }
 
 const Field& GameOfLife::getField() {
-  updateField();
+  if (state_ != State::kPaused) {
+    updateField();
+  }
   return field_;
 }
 
