@@ -10,12 +10,10 @@ int GameOfLife::countNeighbors(int x, int y) const {
   for (int i = -1; i <= 1; ++i) {
     for (int j = -1; j <= 1; ++j) {
       if (i == 0 && j == 0) continue;
-      int neighbour_x = x + i;
-      int neighbour_y = y + j;
-      if (neighbour_x >= 0 && neighbour_x < width_
-          && neighbour_y >= 0 && neighbour_y < height_
-          && field_[neighbour_x][neighbour_y]) {
-        count++;
+      int neighbour_x = (x + i + width_) % width_;
+      int neighbour_y = (y + j + height_) % height_;
+      if (field_[neighbour_y][neighbour_x]) {
+          count++;
       }
     }
   }
@@ -23,7 +21,7 @@ int GameOfLife::countNeighbors(int x, int y) const {
 }
 
 bool GameOfLife::checkRules(int x, int y) const {
-  int neighbors_count = countNeighbors(y, x);
+  int neighbors_count = countNeighbors(x, y);
   return field_[y][x]
          ? (neighbors_count == 2 || neighbors_count == 3)
          : (neighbors_count == 3);
@@ -31,12 +29,19 @@ bool GameOfLife::checkRules(int x, int y) const {
 
 void GameOfLife::updateField() {
   Field new_field(height_, Row(width_, false));
+  bool has_alive_cells = false;
   for (int i = 0; i < height_; ++i) {
     for (int j = 0; j < width_; ++j) {
       new_field[i][j] = checkRules(j, i);
+      if (new_field[i][j]) {
+        has_alive_cells = true;
+      }
     }
   }
   field_ = std::move(new_field);
+  if (!has_alive_cells) {
+    state_ = State::kPaused;
+  }
 }
 
 void GameOfLife::toogleCell(const Coords& coords) {
@@ -65,16 +70,17 @@ void GameOfLife::update(const Action& action, const Coords& coords) {
       }
       break;
     case State::kRunning:
-    switch (action) {
-      case Action::kTogglePause:
-        state_ = State::kPaused;
-        break;
-      case Action::kExit:
-        state_ = State::kExiting;
-        break;
-      default:
-        break;
-    };
+      switch (action) {
+        case Action::kTogglePause:
+          state_ = State::kPaused;
+          break;
+        case Action::kExit:
+          state_ = State::kExiting;
+          break;
+        default:
+          break;
+      };
+      break;
     case State::kExiting:
       break;
   };
@@ -87,9 +93,6 @@ void GameOfLife::clear() {
 }
 
 const Field& GameOfLife::getField() {
-  if (state_ != State::kPaused) {
-    updateField();
-  }
   return field_;
 }
 

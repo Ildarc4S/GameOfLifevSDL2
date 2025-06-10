@@ -32,6 +32,14 @@ Renderer::Renderer(int window_width, int window_height,
     throw std::runtime_error("SDL_RenderClear failed: " + std::string(SDL_GetError()));
   }
   SDL_RenderPresent(renderer_);
+
+  if (TTF_Init() == -1) {
+    throw std::runtime_error("TTF_Init failed: " + std::string(TTF_GetError()));
+  }
+  font_ = TTF_OpenFont("../assets/fonts/Roboto.ttf", 24);
+  if (!font_) {
+    throw std::runtime_error("Failed to load font: " + std::string(TTF_GetError()));
+  }
 }
 
 Renderer::~Renderer() {
@@ -40,7 +48,7 @@ Renderer::~Renderer() {
   SDL_Quit();
 }
 
-void Renderer::render(const Field& field) const {
+void Renderer::render(const Field& field, bool is_pause) const {
   SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
   SDL_RenderClear(renderer_);
   SDL_SetRenderDrawColor(renderer_, 255, 255, 255, 255);
@@ -75,7 +83,48 @@ for (int x = 0; x <= static_cast<int>(field[0].size()) * cell_size_; x += cell_s
       return;
     }
   }
+
+
+  std::string statusText = is_pause ? "Paused" : "Running";
+  SDL_Color textColor = {0, 0, 0, 255};
+  SDL_Color bgColor = {200, 200, 200, 128};
+  int padding = 5;
+  renderText(statusText, offset_x_, offset_y_, padding, textColor, bgColor);
   SDL_RenderPresent(renderer_);
+}
+
+void Renderer::renderText(const std::string& text,
+                          int x, int y, int padding,
+                          SDL_Color color, SDL_Color bg_color) const {
+  int textWidth, textHeight;
+  TTF_SizeText(font_, text.c_str(), &textWidth, &textHeight);
+
+  SDL_Rect bgRect = {
+    x - padding / 2,
+    y - padding / 2,
+    textWidth + padding,
+    textHeight + padding
+  };
+  SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
+  SDL_SetRenderDrawColor(renderer_, bg_color.r, bg_color.g, bg_color.b, bg_color.a);
+  SDL_RenderFillRect(renderer_, &bgRect);
+
+  SDL_Surface* surface = TTF_RenderText_Solid(font_, text.c_str(), color);
+  if (!surface) {
+      return;
+  }
+
+  SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer_, surface);
+  if (!texture) {
+      SDL_FreeSurface(surface);
+      return;
+  }
+
+  SDL_Rect rect = {x, y, surface->w, surface->h};
+  SDL_RenderCopy(renderer_, texture, nullptr, &rect);
+
+  SDL_DestroyTexture(texture);
+  SDL_FreeSurface(surface);
 }
 
 int Renderer::getCellSize() const {

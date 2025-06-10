@@ -2,6 +2,7 @@
 #define CONTROLLER_H
 
 #include "../core/game.h"
+#include "../common/timer.h"
 #include "../gui/renderer.h"
 
 class Controller {
@@ -13,6 +14,7 @@ class Controller {
     GameOfLife& game_;
     Renderer& renderer_;
     int update_interval_;
+    Timer timer_;
     void handleEvents();
 };
 

@@ -11,13 +11,16 @@ void pring(const Field& f) {
 }
 
 Controller::Controller(GameOfLife& game, Renderer& renderer, int update_interval)
-  : game_(game), renderer_(renderer), update_interval_(update_interval) {}
+  : game_(game), renderer_(renderer), timer_(update_interval) {
+  }
 void Controller::run() {
   while (game_.getState() != State::kExiting) {
-    // std::cout << "State: " << static_cast<int>(game_.getState()) << std::endl;
-    // pring(game_.getField());
+    if (game_.getState() == State::kRunning && timer_.check()) {
+      game_.updateField();
+      timer_.reset();
+    }
     handleEvents();
-    renderer_.render(game_.getField());
+    renderer_.render(game_.getField(), game_.getState() == State::kPaused);
   }
 }
 
@@ -41,7 +44,6 @@ void Controller::handleEvents() {
       case SDL_MOUSEBUTTONDOWN:
         if (event.button.button == SDL_BUTTON_LEFT
             && game_.getState() == State::kPaused) {
-          std::cout << "AA\n";
           int cellSize = renderer_.getCellSize();
           if (cellSize <= 0) {
             return;

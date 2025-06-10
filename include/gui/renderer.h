@@ -2,6 +2,7 @@
 #define RENDERER_H
 
 #include <SDL2/SDL.h>
+#include <SDL_ttf.h>
 #include <string>
 #include <stdexcept>
 
@@ -14,15 +15,19 @@ class Renderer {
              int cell_size);
     ~Renderer();
 
-    void render(const Field& field) const;
-    SDL_Window* getWindow() const;
+    void render(const Field& field, bool is_pause) const;
+    void renderText(const std::string& text,
+                    int x, int y, int padding,
+                    SDL_Color color, SDL_Color bg_color) const;
     int getCellSize() const;
     int getOffsetX() const;
     int getOffsetY() const;
 
   private:
+    TTF_Font* font_;
     SDL_Window* window_;
     SDL_Renderer* renderer_;
+
     int window_width_;
     int window_height_;
     int field_width_;

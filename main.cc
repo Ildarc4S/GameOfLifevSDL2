@@ -36,6 +36,8 @@ GameConfig parseCommandLine(int argc, char** argv) {
           config.window_width = std::stoi(argv[++i]);
           if (config.window_width < 200) {
             throw std::invalid_argument("Window width should be more than 200");
+          } else if (config.window_width > 1300) {
+            throw std::invalid_argument("Window width don't should be more than 1300");
           }
           has_width = true;
         }
@@ -43,6 +45,8 @@ GameConfig parseCommandLine(int argc, char** argv) {
           config.window_height = std::stoi(argv[++i]);
           if (config.window_height < 200) {
             throw std::invalid_argument("Window height should be more than 200");
+          } else if (config.window_height > 1300) {
+            throw std::invalid_argument("Window height don't should be more than 1300");
           }
           has_height = true;
         }
@@ -61,7 +65,7 @@ GameConfig parseCommandLine(int argc, char** argv) {
           if (fps <= 0) {
             throw std::invalid_argument("FPS must be positive");
           }
-          config.update_interval = 1000 / fps;
+          config.update_interval = fps;
           has_fps = true;
         }
         else {
@@ -95,6 +99,7 @@ int main(int argc, char** argv) {
       GameOfLife game(field_width, field_height);
 
       Renderer renderer(game_config.window_width, game_config.window_height, field_width, field_height, game_config.cell_size);
+      std::cout << game_config.update_interval << std::endl;
       Controller game_controller(game, renderer, game_config.update_interval);
       game_controller.run();
     }
